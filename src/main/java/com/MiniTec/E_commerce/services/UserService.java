@@ -1,7 +1,11 @@
 package com.MiniTec.E_commerce.services;
 
 import com.MiniTec.E_commerce.dto.user.CreateUserRequest;
+import com.MiniTec.E_commerce.models.Role;
 import com.MiniTec.E_commerce.models.User;
+import com.MiniTec.E_commerce.models.UserHasRoles;
+import com.MiniTec.E_commerce.repositories.RoleRepository;
+import com.MiniTec.E_commerce.repositories.UserHasRolesRepository;
 import com.MiniTec.E_commerce.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +18,12 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private UserHasRolesRepository userHasRolesRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -33,7 +43,14 @@ public class UserService {
 
         user.setNotificationToken("default-token");
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        Role clientRole = roleRepository.findById("CLIENT").orElseThrow(
+                () -> new RuntimeException("El rol de cliente no existe")
+        );
+        UserHasRoles userHasRoles = new UserHasRoles(savedUser, clientRole);
+        userHasRolesRepository.save(userHasRoles);
+
+        return savedUser;
     }
 
 }
