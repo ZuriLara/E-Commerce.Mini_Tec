@@ -4,14 +4,19 @@ import com.MiniTec.E_commerce.dto.user.CreateUserRequest;
 import com.MiniTec.E_commerce.models.User;
 import com.MiniTec.E_commerce.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Transactional
     public User create(CreateUserRequest request) {
@@ -22,7 +27,9 @@ public class UserService {
         user.setName(request.name);
         user.setLastname(request.lastname);
         user.setEmail(request.email);
-        user.setPassword(request.password);
+        String encryptedPassword = passwordEncoder.encode(request.password);
+        user.setPassword(encryptedPassword);
+
 
         user.setNotificationToken("default-token");
 
