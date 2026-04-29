@@ -23,6 +23,9 @@ public class UserService {
         user.setLastname(request.lastname);
         user.setEmail(request.email);
         user.setPassword(request.password);
+
+        user.setNotificationToken("default-token");
+
         return userRepository.save(user);
     }
 

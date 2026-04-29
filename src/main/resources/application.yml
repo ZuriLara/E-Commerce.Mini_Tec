@@ -2,7 +2,7 @@ spring:
   application:
     name: E-commerce
   datasource:
-    url: jdbc:mysql://localhost:3306/Mini_Tec?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/Mini_Tec?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: mysql24
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -11,5 +11,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
 
 
