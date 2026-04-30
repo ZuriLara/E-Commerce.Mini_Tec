@@ -103,4 +103,23 @@ public class UserService {
 
     }
 
+    @Transactional
+    public CreateUserResponse findById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("el Email o Password no son validos"));
+
+        List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(user.getId());
+        List<RoleDTO> rolesDTOS = roles.stream()
+                .map(role -> new RoleDTO(role.getId(), role.getName(), role.getImage(), role.getRoute()))
+                .toList();
+        CreateUserResponse createUserResponse = new CreateUserResponse();
+        createUserResponse.setId(user.getId());
+        createUserResponse.setName(user.getName());
+        createUserResponse.setLastname(user.getLastname());
+        createUserResponse.setImage(user.getImage());
+        createUserResponse.setEmail(user.getEmail());
+        createUserResponse.setRoles(rolesDTOS);
+
+        return  createUserResponse;
+    }
 }
