@@ -2,13 +2,17 @@ package com.MiniTec.E_commerce.models.id;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 @Data
 @Embeddable
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserRoleId implements Serializable {
 
     @Column(name = "id_user")
@@ -30,11 +34,5 @@ public class UserRoleId implements Serializable {
         return Objects.hash(userId, roleId);
     }
 
-    public  UserRoleId() {}
-
-    public  UserRoleId(Long userId, String roleId) {
-        this.userId = userId;
-        this.roleId = roleId;
-    }
 
 }

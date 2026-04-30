@@ -1,6 +1,8 @@
 package com.MiniTec.E_commerce.services;
 
 import com.MiniTec.E_commerce.dto.user.CreateUserRequest;
+import com.MiniTec.E_commerce.dto.user.CreateUserResponse;
+import com.MiniTec.E_commerce.dto.user.role.RoleDTO;
 import com.MiniTec.E_commerce.models.Role;
 import com.MiniTec.E_commerce.models.User;
 import com.MiniTec.E_commerce.models.UserHasRoles;
@@ -11,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -29,7 +33,7 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional
-    public User create(CreateUserRequest request) {
+    public CreateUserResponse create(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.email)){
             throw new RuntimeException("El correo ya esta registrado");
         }
@@ -40,7 +44,7 @@ public class UserService {
         String encryptedPassword = passwordEncoder.encode(request.password);
         user.setPassword(encryptedPassword);
 
-
+        //ESTE CAMPO SE USA CUANDO HAYA FALLAS EN EL POSTMAN
         user.setNotificationToken("default-token");
 
         User savedUser = userRepository.save(user);
@@ -50,7 +54,20 @@ public class UserService {
         UserHasRoles userHasRoles = new UserHasRoles(savedUser, clientRole);
         userHasRolesRepository.save(userHasRoles);
 
-        return savedUser;
+        CreateUserResponse response = new CreateUserResponse();
+        response.setId(savedUser.getId());
+        response.setName(savedUser.getName());
+        response.setLastname(savedUser.getLastname());
+        response.setImage(savedUser.getImage());
+        response.setEmail(savedUser.getEmail());
+
+        List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(savedUser.getId());
+        List<RoleDTO> rolesDTOS = roles.stream()
+                        .map(role -> new RoleDTO(role.getId(), role.getName(), role.getImage(), role.getRoute()))
+                                .toList();
+
+        response.setRoles(rolesDTOS);
+        return response;
     }
 
 }

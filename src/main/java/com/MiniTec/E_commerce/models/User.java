@@ -35,7 +35,7 @@ public class User {
     @Column(length = 225, nullable = false)
     private String password;
 
-    @Column(name = "notification_token", length = 225, nullable = false)
+    @Column(name = "notification_token", length = 225, nullable = true)
     private String notificationToken;
 
     @Column(name="created_at", nullable = false, updatable = false)
@@ -45,7 +45,7 @@ public class User {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserHasRoles> roles = new HashSet<>();
+    private Set<UserHasRoles> userHasRoles = new HashSet<>();
 
     public User() {}
     @PreUpdate
