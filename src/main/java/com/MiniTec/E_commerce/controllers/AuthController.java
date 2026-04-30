@@ -2,7 +2,8 @@ package com.MiniTec.E_commerce.controllers;
 
 import com.MiniTec.E_commerce.dto.user.CreateUserRequest;
 import com.MiniTec.E_commerce.dto.user.CreateUserResponse;
-import com.MiniTec.E_commerce.models.User;
+import com.MiniTec.E_commerce.dto.user.LoginRequest;
+import com.MiniTec.E_commerce.dto.user.LoginResponse;
 import com.MiniTec.E_commerce.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,4 +38,20 @@ public class AuthController {
         }
 
     }
+    @PostMapping(value = "/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            LoginResponse response = userService.login(request);
+            return ResponseEntity.ok(response);
+
+        } catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "message", e.getMessage(),
+                    "statusCode", HttpStatus.UNAUTHORIZED.value()
+            ));
+
+        }
+
+    }
+
 }

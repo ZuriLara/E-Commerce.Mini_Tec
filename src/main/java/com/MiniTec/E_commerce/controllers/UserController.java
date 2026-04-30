@@ -3,7 +3,6 @@ package com.MiniTec.E_commerce.controllers;
 
 import com.MiniTec.E_commerce.dto.user.CreateUserRequest;
 import com.MiniTec.E_commerce.dto.user.CreateUserResponse;
-import com.MiniTec.E_commerce.models.User;
 import com.MiniTec.E_commerce.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

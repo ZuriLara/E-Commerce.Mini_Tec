@@ -2,13 +2,16 @@ package com.MiniTec.E_commerce.services;
 
 import com.MiniTec.E_commerce.dto.user.CreateUserRequest;
 import com.MiniTec.E_commerce.dto.user.CreateUserResponse;
-import com.MiniTec.E_commerce.dto.user.role.RoleDTO;
+import com.MiniTec.E_commerce.dto.role.RoleDTO;
+import com.MiniTec.E_commerce.dto.user.LoginRequest;
+import com.MiniTec.E_commerce.dto.user.LoginResponse;
 import com.MiniTec.E_commerce.models.Role;
 import com.MiniTec.E_commerce.models.User;
 import com.MiniTec.E_commerce.models.UserHasRoles;
 import com.MiniTec.E_commerce.repositories.RoleRepository;
 import com.MiniTec.E_commerce.repositories.UserHasRolesRepository;
 import com.MiniTec.E_commerce.repositories.UserRepository;
+import com.MiniTec.E_commerce.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Transactional
     public CreateUserResponse create(CreateUserRequest request) {
@@ -68,6 +74,33 @@ public class UserService {
 
         response.setRoles(rolesDTOS);
         return response;
+    }
+    @Transactional
+    public LoginResponse login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("el Email o Password no son validos"));
+        if (!passwordEncoder.matches(request.getPassword(),user.getPassword())) {
+            throw new RuntimeException("El Email o Password no son validos");
+        }
+        String token = jwtUtil.generateToken(user);
+        List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(user.getId());
+        List<RoleDTO> rolesDTOS = roles.stream()
+                .map(role -> new RoleDTO(role.getId(), role.getName(), role.getImage(), role.getRoute()))
+                .toList();
+        CreateUserResponse createUserResponse = new CreateUserResponse();
+        createUserResponse.setId(user.getId());
+        createUserResponse.setName(user.getName());
+        createUserResponse.setLastname(user.getLastname());
+        createUserResponse.setImage(user.getImage());
+        createUserResponse.setEmail(user.getEmail());
+        createUserResponse.setRoles(rolesDTOS);
+
+        LoginResponse response = new LoginResponse();
+        response.setToken("Bearer "+ token);
+        response.setUser(createUserResponse);
+
+        return response;
+
     }
 
 }

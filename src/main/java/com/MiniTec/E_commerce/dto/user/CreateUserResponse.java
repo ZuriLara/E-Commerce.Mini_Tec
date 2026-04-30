@@ -1,6 +1,6 @@
 package com.MiniTec.E_commerce.dto.user;
 
-import com.MiniTec.E_commerce.dto.user.role.RoleDTO;
+import com.MiniTec.E_commerce.dto.role.RoleDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.MiniTec.E_commerce.dto.user.role;
+package com.MiniTec.E_commerce.dto.role;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
