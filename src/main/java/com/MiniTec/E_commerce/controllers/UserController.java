@@ -20,15 +20,15 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<CreateUserResponse> create(@RequestBody CreateUserRequest request) {
-        CreateUserResponse user = userService.create(request);
+    public ResponseEntity<UserResponse> create(@RequestBody CreateUserRequest request) {
+        UserResponse user = userService.create(request);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
-            CreateUserResponse response = userService.findById(id);
+            UserResponse response = userService.findById(id);
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e){
@@ -47,7 +47,7 @@ public class UserController {
             @ModelAttribute UpdateUserRequest request
             ) {
         try {
-            CreateUserResponse response = userService.updateUserWithImage(id, request);
+            UserResponse response = userService.updateUserWithImage(id, request);
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e){

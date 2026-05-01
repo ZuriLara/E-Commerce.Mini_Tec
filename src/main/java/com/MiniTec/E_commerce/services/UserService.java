@@ -2,6 +2,7 @@ package com.MiniTec.E_commerce.services;
 
 import com.MiniTec.E_commerce.dto.user.*;
 import com.MiniTec.E_commerce.dto.role.RoleDTO;
+import com.MiniTec.E_commerce.dto.user.mapper.UserMapper;
 import com.MiniTec.E_commerce.models.Role;
 import com.MiniTec.E_commerce.models.User;
 import com.MiniTec.E_commerce.models.UserHasRoles;
@@ -20,6 +21,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+// TODO: Quitar los espacios sobrantes
 
 @Service
 public class UserService {
@@ -39,8 +41,11 @@ public class UserService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Transactional
-    public CreateUserResponse create(CreateUserRequest request) {
+    public UserResponse create(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.email)){
             throw new RuntimeException("El correo ya esta registrado");
         }
@@ -61,20 +66,9 @@ public class UserService {
         UserHasRoles userHasRoles = new UserHasRoles(savedUser, clientRole);
         userHasRolesRepository.save(userHasRoles);
 
-        CreateUserResponse response = new CreateUserResponse();
-        response.setId(savedUser.getId());
-        response.setName(savedUser.getName());
-        response.setLastname(savedUser.getLastname());
-        response.setImage(savedUser.getImage());
-        response.setEmail(savedUser.getEmail());
-
         List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(savedUser.getId());
-        List<RoleDTO> rolesDTOS = roles.stream()
-                        .map(role -> new RoleDTO(role.getId(), role.getName(), role.getImage(), role.getRoute()))
-                                .toList();
 
-        response.setRoles(rolesDTOS);
-        return response;
+        return userMapper.toUserResponse(user, roles);
     }
     @Transactional
     public LoginResponse login(LoginRequest request) {
@@ -85,49 +79,29 @@ public class UserService {
         }
         String token = jwtUtil.generateToken(user);
         List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(user.getId());
-        List<RoleDTO> rolesDTOS = roles.stream()
-                .map(role -> new RoleDTO(role.getId(), role.getName(), role.getImage(), role.getRoute()))
-                .toList();
-        CreateUserResponse createUserResponse = new CreateUserResponse();
-        createUserResponse.setId(user.getId());
-        createUserResponse.setName(user.getName());
-        createUserResponse.setLastname(user.getLastname());
-        createUserResponse.setImage(user.getImage());
-        createUserResponse.setEmail(user.getEmail());
-        createUserResponse.setRoles(rolesDTOS);
-
         LoginResponse response = new LoginResponse();
         response.setToken("Bearer "+ token);
-        response.setUser(createUserResponse);
+        response.setUser(userMapper.toUserResponse(user, roles));
 
         return response;
 
     }
 
     @Transactional
-    public CreateUserResponse findById(Long id) {
+    public UserResponse findById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("el Email o Password no son validos"));
 
         List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(user.getId());
-        List<RoleDTO> rolesDTOS = roles.stream()
-                .map(role -> new RoleDTO(role.getId(), role.getName(), role.getImage(), role.getRoute()))
-                .toList();
-        CreateUserResponse createUserResponse = new CreateUserResponse();
-        createUserResponse.setId(user.getId());
-        createUserResponse.setName(user.getName());
-        createUserResponse.setLastname(user.getLastname());
-        createUserResponse.setImage(user.getImage());
-        createUserResponse.setEmail(user.getEmail());
-        createUserResponse.setRoles(rolesDTOS);
 
-        return createUserResponse;
+
+        return userMapper.toUserResponse(user, roles);
 
     }
 
 
     @Transactional
-    public CreateUserResponse updateUserWithImage(Long id, UpdateUserRequest request) throws IOException {
+    public UserResponse updateUserWithImage(Long id, UpdateUserRequest request) throws IOException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("el Email o Password no son validos"));
 
@@ -152,18 +126,9 @@ public class UserService {
         userRepository.save(user);
 
         List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(user.getId());
-        List<RoleDTO> rolesDTOS = roles.stream()
-                .map(role -> new RoleDTO(role.getId(), role.getName(), role.getImage(), role.getRoute()))
-                .toList();
-        CreateUserResponse createUserResponse = new CreateUserResponse();
-        createUserResponse.setId(user.getId());
-        createUserResponse.setName(user.getName());
-        createUserResponse.setLastname(user.getLastname());
-        createUserResponse.setImage(user.getImage());
-        createUserResponse.setEmail(user.getEmail());
-        createUserResponse.setRoles(rolesDTOS);
 
-        return createUserResponse;
+
+        return userMapper.toUserResponse(user, roles);
 
     }
 }
