@@ -1,10 +1,7 @@
 package com.MiniTec.E_commerce.services;
 
-import com.MiniTec.E_commerce.dto.user.CreateUserRequest;
-import com.MiniTec.E_commerce.dto.user.CreateUserResponse;
+import com.MiniTec.E_commerce.dto.user.*;
 import com.MiniTec.E_commerce.dto.role.RoleDTO;
-import com.MiniTec.E_commerce.dto.user.LoginRequest;
-import com.MiniTec.E_commerce.dto.user.LoginResponse;
 import com.MiniTec.E_commerce.models.Role;
 import com.MiniTec.E_commerce.models.User;
 import com.MiniTec.E_commerce.models.UserHasRoles;
@@ -17,6 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 
@@ -103,4 +104,66 @@ public class UserService {
 
     }
 
+    @Transactional
+    public CreateUserResponse findById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("el Email o Password no son validos"));
+
+        List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(user.getId());
+        List<RoleDTO> rolesDTOS = roles.stream()
+                .map(role -> new RoleDTO(role.getId(), role.getName(), role.getImage(), role.getRoute()))
+                .toList();
+        CreateUserResponse createUserResponse = new CreateUserResponse();
+        createUserResponse.setId(user.getId());
+        createUserResponse.setName(user.getName());
+        createUserResponse.setLastname(user.getLastname());
+        createUserResponse.setImage(user.getImage());
+        createUserResponse.setEmail(user.getEmail());
+        createUserResponse.setRoles(rolesDTOS);
+
+        return createUserResponse;
+
+    }
+
+
+    @Transactional
+    public CreateUserResponse updateUserWithImage(Long id, UpdateUserRequest request) throws IOException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("el Email o Password no son validos"));
+
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+
+        if (request.getLastname() != null) {
+            user.setLastname(request.getLastname());
+        }
+
+        if (request.getFile() != null && !request.getFile().isEmpty()) {
+            String uploadDir = "uploads/users/" + user.getId();
+            String filename = request.getFile().getOriginalFilename();
+            String filePath = Paths.get(uploadDir, filename).toString();
+
+            Files.createDirectories(Paths.get(uploadDir));
+            Files.copy(request.getFile().getInputStream(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
+            user.setImage("/" + filePath.replace("\\", "/"));
+        }
+
+        userRepository.save(user);
+
+        List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(user.getId());
+        List<RoleDTO> rolesDTOS = roles.stream()
+                .map(role -> new RoleDTO(role.getId(), role.getName(), role.getImage(), role.getRoute()))
+                .toList();
+        CreateUserResponse createUserResponse = new CreateUserResponse();
+        createUserResponse.setId(user.getId());
+        createUserResponse.setName(user.getName());
+        createUserResponse.setLastname(user.getLastname());
+        createUserResponse.setImage(user.getImage());
+        createUserResponse.setEmail(user.getEmail());
+        createUserResponse.setRoles(rolesDTOS);
+
+        return createUserResponse;
+
+    }
 }
