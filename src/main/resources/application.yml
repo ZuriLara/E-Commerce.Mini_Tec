@@ -1,6 +1,6 @@
 server:
   port: 3000
-  address: 192.168.1.141
+  address: 192.168.1.118
 
 spring:
   application:
@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/Mini_Tec?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: 1111
+    password: mysql24
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

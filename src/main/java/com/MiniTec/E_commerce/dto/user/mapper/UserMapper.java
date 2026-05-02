@@ -21,7 +21,7 @@ public class UserMapper {
         userResponse.setId(user.getId());
         userResponse.setName(user.getName());
         userResponse.setLastname(user.getLastname());
-        userResponse.setImage(user.getImage());
+        //userResponse.setImage(user.getImage());
         userResponse.setEmail(user.getEmail());
         userResponse.setRoles(rolesDTOS);
 

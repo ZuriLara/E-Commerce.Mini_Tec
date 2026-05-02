@@ -45,7 +45,7 @@ public class UserService {
     private UserMapper userMapper;
 
     @Transactional
-    public UserResponse create(CreateUserRequest request) {
+    public LoginResponse create(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.email)){
             throw new RuntimeException("El correo ya esta registrado");
         }
@@ -66,9 +66,15 @@ public class UserService {
         UserHasRoles userHasRoles = new UserHasRoles(savedUser, clientRole);
         userHasRolesRepository.save(userHasRoles);
 
+        String token = jwtUtil.generateToken(user);
+
         List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(savedUser.getId());
 
-        return userMapper.toUserResponse(user, roles);
+        LoginResponse response = new LoginResponse();
+        response.setToken("Bearer "+ token);
+        response.setUser(userMapper.toUserResponse(user, roles));
+
+        return response;
     }
     @Transactional
     public LoginResponse login(LoginRequest request) {
@@ -79,6 +85,7 @@ public class UserService {
         }
         String token = jwtUtil.generateToken(user);
         List<Role> roles = roleRepository.findAllByUserHasRoles_User_Id(user.getId());
+
         LoginResponse response = new LoginResponse();
         response.setToken("Bearer "+ token);
         response.setUser(userMapper.toUserResponse(user, roles));

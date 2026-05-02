@@ -19,11 +19,11 @@ public class UserController {
     private UserService userService;
 
 
-    @PostMapping
-    public ResponseEntity<UserResponse> create(@RequestBody CreateUserRequest request) {
-        UserResponse user = userService.create(request);
-        return ResponseEntity.ok(user);
-    }
+//    @PostMapping
+//    public ResponseEntity<UserResponse> create(@RequestBody CreateUserRequest request) {
+//        UserResponse user = userService.create(request);
+//        return ResponseEntity.ok(user);
+//    }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
